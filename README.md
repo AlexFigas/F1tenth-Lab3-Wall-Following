@@ -14,11 +14,11 @@ This is my implementation of the [F1tenth Lab 3 - Wall Following](https://f1tent
 * Clone this repo to your catkin workspace source folder
 ```
 cd catkin_ws/src
-git clone ___
+git clone https://github.com/AlexFigas/F1tenth-Lab3-Wall-Following.git
 ```
 * Rename the cloned folder to "wall_following"
 ```
-mv ___ wall_following
+mv F1tenth-Lab3-Wall-Following  wall_following
 ```
 * Compile the code
 ```
