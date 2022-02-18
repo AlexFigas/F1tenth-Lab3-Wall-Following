@@ -1,5 +1,6 @@
 # F1tenth Lab 3 - Wall Following
 
+
 This is my implementation of the [F1tenth Lab 3 - Wall Following](https://f1tenth-coursekit.readthedocs.io/en/latest/assignments/labs/lab3.html)
 
 ## Getting Started
@@ -8,7 +9,7 @@ This is my implementation of the [F1tenth Lab 3 - Wall Following](https://f1tent
 
 * [ROS](https://wiki.ros.org/ROS/Installation) - I used ROS Noetic
 * [F1tenth Simulator](https://f1tenth.readthedocs.io/en/latest/going_forward/simulator/sim_install.html)
-* [Lab 3 Documentation](https://f1tenth-coursekit.readthedocs.io/en/latest/assignments/labs/lab3.html)
+
 ### Executing program
 
 * Clone this repo to your catkin workspace source folder
