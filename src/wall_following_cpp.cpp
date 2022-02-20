@@ -1,18 +1,32 @@
 using namespace std;
 
-#include "math.h";
+#include "math.h"
 #include <ros/ros.h>
 #include <sensor_msgs/LaserScan.h>
 #include <ackermann_msgs/AckermannDrive.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
 
-float kp = 0.0f; // TODO
-float kd = 0.0f; // TODO
-float ki = 0.0f; // TODO
+// Constants
+float KP = 0.0f;             // TODO
+float KD = 0.0f;             // TODO
+float KI = 0.0f;             // TODO
+double L = 1.0;              // TODO
+double MIN_DIST_RIGHT = 1.0; // TODO
+double MIN_DIST_LEFT = 1.2;  // TODO
 
+// Publisher & Subscriber
 ros::Subscriber sub;
 ros::Publisher pub;
 
+// Variables
+int idx_a, idx_b;
+double dist_a, dist_b;
+double ang_a, ang_b;
+double alpha;
+double dt, dt1;
+double error, integral;
+
+// Functions
 void callback_scan(sensor_msgs::LaserScan scan);
 void publish_nav(ackermann_msgs::AckermannDriveStamped msg);
 
@@ -31,25 +45,48 @@ int main(int argc, char **argv)
 void callback_scan(sensor_msgs::LaserScan scan)
 {
     ROS_INFO("Received scan!");
-    ROS_INFO("%f increments with %llu total scans!", scan.angle_increment, scan.ranges.size());
+    ROS_INFO("%f increments with %lu total scans!", scan.angle_increment, scan.ranges.size());
 
     // TODO - calculate PID control and call publish_nav function
     ackermann_msgs::AckermannDriveStamped msg;
-    float a, b;
-    float alpha, tetha;
-    vector<float> ranges = scan.ranges;
 
-    b = ranges[ranges.size() / 2]; // Angle 0 (directly in front of the car)
+    ang_a = 45.0 * (M_PI / 180.0);
+    ang_b = 90.0 * (M_PI / 180.0);
 
-    for (int i = 0; i < ranges.size(); i++)
+    // Indexes
+    idx_a = (int)floor((ang_a - scan.angle_min) / scan.angle_increment); // A knowing that it is 45 degrees
+    idx_b = (int)floor((ang_b - scan.angle_min) / scan.angle_increment); // B knowing that it is at 90 degrees
+
+    // Distances
+    dist_a = scan.ranges[idx_a];
+    dist_b = scan.ranges[idx_b];
+
+    alpha = atan((dist_a * cos(ang_b - ang_a) - dist_b) / (dist_a * sin(ang_b - ang_a)));
+
+    dt = dist_b * cos(alpha);
+    dt1 = dt + L * sin(alpha);
+
+    error = MIN_DIST_LEFT - dt1;
+    integral = 0.0; // TODO
+
+    // PID Algorithm
+    msg.drive.steering_angle = -((KP * error) + (KI * integral) + (KD * error));
+
+    // Debug Drive
+    // msg.drive.speed = 2;
+    // msg.drive.acceleration = 2;
+
+    if (abs(msg.drive.steering_angle) > 20.0 * (M_PI / 180.0))
     {
-        a = ranges[i];
-        if (i < ranges.size()/2) {
-            tetha = 
-        }
-        scan.angle_increment * i;
-        alpha = atan((a * cos(tetha) - b) / (a * sin(tetha)));
-
+        msg.drive.speed = 0.5;
+    }
+    else if (abs(msg.drive.steering_angle) > 10.0 * (M_PI / 180.0))
+    {
+        msg.drive.speed = 1.0;
+    }
+    else
+    {
+        msg.drive.speed = 1.5;
     }
 
     publish_nav(msg);
