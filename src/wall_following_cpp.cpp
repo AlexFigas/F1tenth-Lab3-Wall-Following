@@ -7,9 +7,9 @@ using namespace std;
 #include <ackermann_msgs/AckermannDriveStamped.h>
 
 // Constants
-float KP = 0.0f;             // TODO
-float KD = 0.0f;             // TODO
-float KI = 0.0f;             // TODO
+float KP = 1.0f;             // TODO
+float KD = 0.001f;             // TODO
+float KI = 0.005f;             // TODO
 double L = 1.0;              // TODO
 double MIN_DIST_RIGHT = 1.0; // TODO
 double MIN_DIST_LEFT = 1.2;  // TODO
@@ -70,7 +70,7 @@ void callback_scan(sensor_msgs::LaserScan scan)
     integral = 0.0; // TODO
 
     // PID Algorithm
-    msg.drive.steering_angle = -((KP * error) + (KI * integral) + (KD * error));
+    msg.drive.steering_angle = -((KP * error) /*+ (KI * integral)*/ + (KD * error));
 
     // Debug Drive
     // msg.drive.speed = 2;
@@ -91,6 +91,7 @@ void callback_scan(sensor_msgs::LaserScan scan)
 
     publish_nav(msg);
 }
+
 void publish_nav(ackermann_msgs::AckermannDriveStamped msg)
 {
     pub.publish(msg);
