@@ -8,8 +8,8 @@ using namespace std;
 
 // Constants
 float KP = 1.0f;             // TODO
-float KD = 0.001f;             // TODO
-float KI = 0.005f;             // TODO
+float KD = 0.001f;           // TODO
+float KI = 0.005f;           // TODO
 double L = 1.0;              // TODO
 double MIN_DIST_RIGHT = 1.0; // TODO
 double MIN_DIST_LEFT = 1.2;  // TODO
@@ -47,7 +47,6 @@ void callback_scan(sensor_msgs::LaserScan scan)
     ROS_INFO("Received scan!");
     ROS_INFO("%f increments with %lu total scans!", scan.angle_increment, scan.ranges.size());
 
-    // TODO - calculate PID control and call publish_nav function
     ackermann_msgs::AckermannDriveStamped msg;
 
     ang_a = 45.0 * (M_PI / 180.0);
@@ -71,10 +70,6 @@ void callback_scan(sensor_msgs::LaserScan scan)
 
     // PID Algorithm
     msg.drive.steering_angle = -((KP * error) /*+ (KI * integral)*/ + (KD * error));
-
-    // Debug Drive
-    // msg.drive.speed = 2;
-    // msg.drive.acceleration = 2;
 
     if (abs(msg.drive.steering_angle) > 20.0 * (M_PI / 180.0))
     {
