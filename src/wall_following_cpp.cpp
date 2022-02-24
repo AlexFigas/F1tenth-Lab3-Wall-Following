@@ -7,12 +7,12 @@ using namespace std;
 #include <ackermann_msgs/AckermannDriveStamped.h>
 
 // Constants
-float KP = 1.0f;             // TODO
-float KD = 0.001f;           // TODO
-float KI = 0.005f;           // TODO
-double L = 1.0;              // TODO
-double MIN_DIST_RIGHT = 1.0; // TODO
-double MIN_DIST_LEFT = 1.2;  // TODO
+float KP = 1.0f;
+float KD = 0.001f;
+float KI = 0.005f;
+double L = 1.0;
+double MIN_DIST_RIGHT = 1.0;
+double MIN_DIST_LEFT = 1.2;
 
 // Publisher & Subscriber
 ros::Subscriber sub;
@@ -24,7 +24,8 @@ double dist_a, dist_b;
 double ang_a, ang_b;
 double alpha;
 double dt, dt1;
-double error, integral;
+double error, prev_error, integral;
+double delta_time, last_time;
 
 // Functions
 void callback_scan(sensor_msgs::LaserScan scan);
@@ -40,6 +41,8 @@ int main(int argc, char **argv)
     pub = nh.advertise<ackermann_msgs::AckermannDriveStamped>("/nav", 1);
 
     ros::spin();
+
+    last_time = ros::Time::now().toSec();
 }
 
 void callback_scan(sensor_msgs::LaserScan scan)
@@ -66,10 +69,13 @@ void callback_scan(sensor_msgs::LaserScan scan)
     dt1 = dt + L * sin(alpha);
 
     error = MIN_DIST_LEFT - dt1;
-    integral = 0.0; // TODO
+
+    delta_time = ros::Time::now().toSec();
+
+    integral += prev_error * delta_time;
 
     // PID Algorithm
-    msg.drive.steering_angle = -((KP * error) /*+ (KI * integral)*/ + (KD * error));
+    msg.drive.steering_angle = -(KP * error + KD * (error - prev_error) / delta_time /* + KI * integral */);
 
     if (abs(msg.drive.steering_angle) > 20.0 * (M_PI / 180.0))
     {
@@ -85,6 +91,9 @@ void callback_scan(sensor_msgs::LaserScan scan)
     }
 
     publish_nav(msg);
+
+    prev_error = error;
+    last_time = ros::Time::now().toSec();
 }
 
 void publish_nav(ackermann_msgs::AckermannDriveStamped msg)
